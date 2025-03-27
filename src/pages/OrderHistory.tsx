@@ -2,7 +2,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ORDERS } from "@/data/products";
 import { 
   Table,
   TableBody,
@@ -18,6 +17,8 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { cn } from "@/lib/utils";
+import { useOrders } from "@/hooks/useOrders";
+import { Link } from "react-router-dom";
 
 const getBadgeColor = (status: string) => {
   switch (status.toLowerCase()) {
@@ -35,6 +36,8 @@ const getBadgeColor = (status: string) => {
 };
 
 const OrderHistory = () => {
+  const { orders, loading } = useOrders();
+  
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -43,7 +46,11 @@ const OrderHistory = () => {
         <div className="max-w-5xl mx-auto animate-slide-up">
           <h1 className="text-3xl font-heading font-medium mb-8">Order History</h1>
           
-          {ORDERS.length > 0 ? (
+          {loading ? (
+            <div className="flex justify-center items-center py-20">
+              <div className="animate-pulse text-xl">Loading your orders...</div>
+            </div>
+          ) : orders.length > 0 ? (
             <div className="space-y-6">
               <div className="hidden md:block">
                 <Table>
@@ -57,7 +64,7 @@ const OrderHistory = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {ORDERS.map((order) => (
+                    {orders.map((order) => (
                       <TableRow key={order.id}>
                         <TableCell className="font-medium">{order.id}</TableCell>
                         <TableCell>{new Date(order.date).toLocaleDateString()}</TableCell>
@@ -81,7 +88,7 @@ const OrderHistory = () => {
               
               <div className="md:hidden">
                 <Accordion type="single" collapsible className="w-full">
-                  {ORDERS.map((order) => (
+                  {orders.map((order) => (
                     <AccordionItem key={order.id} value={order.id}>
                       <AccordionTrigger className="py-4 px-1">
                         <div className="flex items-center justify-between w-full pr-4">
@@ -124,7 +131,9 @@ const OrderHistory = () => {
             <div className="text-center py-16 border rounded-lg">
               <h3 className="text-xl font-medium mb-2">No orders yet</h3>
               <p className="text-gray-600 mb-6">You haven't placed any orders yet.</p>
-              <Button>Start Shopping</Button>
+              <Link to="/products">
+                <Button>Start Shopping</Button>
+              </Link>
             </div>
           )}
         </div>
