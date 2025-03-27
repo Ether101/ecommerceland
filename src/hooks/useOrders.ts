@@ -1,0 +1,162 @@
+
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/context/AuthContext";
+import { toast } from "sonner";
+import { useCart } from "./useCart";
+
+export interface Order {
+  id: string;
+  date: string;
+  status: string;
+  total: number;
+  items: {
+    product_id: string;
+    name: string;
+    price: number;
+    quantity: number;
+  }[];
+}
+
+export const useOrders = () => {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user } = useAuth();
+  const { clearCart } = useCart();
+  
+  // Load orders
+  useEffect(() => {
+    const fetchOrders = async () => {
+      if (!user) {
+        setOrders([]);
+        setLoading(false);
+        return;
+      }
+      
+      setLoading(true);
+      
+      try {
+        // Fetch orders from Supabase
+        const { data: ordersData, error: ordersError } = await supabase
+          .from("orders")
+          .select("*")
+          .eq("user_id", user.id)
+          .order("created_at", { ascending: false });
+        
+        if (ordersError) throw ordersError;
+        
+        // Fetch order items for each order
+        const ordersWithItems = await Promise.all(
+          ordersData.map(async (order) => {
+            const { data: orderItems, error: itemsError } = await supabase
+              .from("order_items")
+              .select(`
+                id,
+                quantity,
+                price,
+                products (
+                  id,
+                  name
+                )
+              `)
+              .eq("order_id", order.id);
+            
+            if (itemsError) throw itemsError;
+            
+            // Format order items
+            const items = orderItems.map((item) => ({
+              product_id: item.products.id,
+              name: item.products.name,
+              price: item.price,
+              quantity: item.quantity
+            }));
+            
+            return {
+              id: order.id,
+              date: order.created_at,
+              status: order.status,
+              total: order.total,
+              items
+            };
+          })
+        );
+        
+        setOrders(ordersWithItems);
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        toast.error("Failed to load orders");
+        
+        // Fallback to sample data in development
+        if (import.meta.env.DEV) {
+          import('@/data/products').then(module => {
+            setOrders(module.ORDERS);
+            toast.error("Using sample data - Supabase fetch failed");
+          });
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchOrders();
+  }, [user]);
+  
+  // Create a new order
+  const createOrder = async (
+    shippingDetails: any,
+    paymentMethod: string,
+    cartItems: any[],
+    total: number
+  ) => {
+    try {
+      if (!user) {
+        toast.error("You must be logged in to place an order");
+        return null;
+      }
+      
+      // Insert order
+      const { data: order, error: orderError } = await supabase
+        .from("orders")
+        .insert({
+          user_id: user.id,
+          status: "pending",
+          total,
+          shipping_details: shippingDetails,
+          payment_method: paymentMethod
+        })
+        .select()
+        .single();
+      
+      if (orderError) throw orderError;
+      
+      // Insert order items
+      const orderItems = cartItems.map(item => ({
+        order_id: order.id,
+        product_id: item.product.id,
+        quantity: item.quantity,
+        price: item.product.price
+      }));
+      
+      const { error: itemsError } = await supabase
+        .from("order_items")
+        .insert(orderItems);
+      
+      if (itemsError) throw itemsError;
+      
+      // Clear the cart after successful order
+      await clearCart();
+      
+      return order;
+    } catch (err) {
+      console.error("Error creating order:", err);
+      toast.error("Failed to create order");
+      return null;
+    }
+  };
+  
+  return {
+    orders,
+    loading,
+    createOrder
+  };
+};

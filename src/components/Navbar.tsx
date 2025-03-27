@@ -4,12 +4,14 @@ import { Link, useLocation } from "react-router-dom";
 import { Search, ShoppingCart, Menu, X, User, Watch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const location = useLocation();
+  const { user } = useAuth();
 
   // Track scrolling for navbar style change
   useEffect(() => {
@@ -67,7 +69,6 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Watches", path: "/products" },
     { name: "About", path: "/about" },
-    { name: "Contact", path: "/contact" },
   ];
 
   return (
@@ -115,16 +116,32 @@ const Navbar = () => {
               )}
             </Button>
           </Link>
-          <Link to="/account">
-            <Button variant="ghost" size="icon" aria-label="Account">
-              <User className="h-5 w-5" />
-            </Button>
-          </Link>
-          <Link to="/orders">
-            <Button variant="default" className="ml-2">
-              My Orders
-            </Button>
-          </Link>
+          {user ? (
+            <Link to="/profile">
+              <Button variant="ghost" size="icon" aria-label="Account">
+                <User className="h-5 w-5" />
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/login">
+              <Button variant="ghost">
+                Login
+              </Button>
+            </Link>
+          )}
+          {user ? (
+            <Link to="/orders">
+              <Button variant="default" className="ml-2">
+                My Orders
+              </Button>
+            </Link>
+          ) : (
+            <Link to="/register">
+              <Button variant="default" className="ml-2">
+                Register
+              </Button>
+            </Link>
+          )}
         </div>
 
         {/* Mobile Menu Button */}
@@ -178,14 +195,50 @@ const Navbar = () => {
                 >
                   Cart
                 </Link>
+                {user ? (
+                  <>
+                    <Link 
+                      to="/profile"
+                      className={cn(
+                        "text-lg font-medium transition-colors hover:text-black",
+                        location.pathname === "/profile" ? "text-black" : "text-black/60"
+                      )}
+                    >
+                      Profile
+                    </Link>
+                    <Link 
+                      to="/orders"
+                      className={cn(
+                        "text-lg font-medium transition-colors hover:text-black",
+                        location.pathname === "/orders" ? "text-black" : "text-black/60"
+                      )}
+                    >
+                      Orders
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link 
+                      to="/login"
+                      className={cn(
+                        "text-lg font-medium transition-colors hover:text-black",
+                        location.pathname === "/login" ? "text-black" : "text-black/60"
+                      )}
+                    >
+                      Login
+                    </Link>
+                    <Link 
+                      to="/register"
+                      className={cn(
+                        "text-lg font-medium transition-colors hover:text-black",
+                        location.pathname === "/register" ? "text-black" : "text-black/60"
+                      )}
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
               </nav>
-              <div className="flex flex-col space-y-4 items-center">
-                <Link to="/orders">
-                  <Button variant="default" className="w-40">
-                    My Orders
-                  </Button>
-                </Link>
-              </div>
             </div>
           </div>
         )}
