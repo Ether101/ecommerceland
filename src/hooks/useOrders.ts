@@ -36,73 +36,14 @@ export const useOrders = () => {
       setLoading(true);
       
       try {
-        // Fetch orders from Supabase
-        const { data: ordersData, error: ordersError } = await supabase
-          .from("orders")
-          .select("*")
-          .eq("user_id", user.id)
-          .order("created_at", { ascending: false });
+        // Since we don't have an orders table in Supabase yet, this is a mock implementation
+        // that will be replaced by real database queries when the tables are created
         
-        if (ordersError) throw ordersError;
-        
-        // Fetch order items for each order
-        const ordersWithItems = await Promise.all(
-          ordersData.map(async (order) => {
-            const { data: orderItems, error: itemsError } = await supabase
-              .from("order_items")
-              .select(`
-                id,
-                quantity,
-                price,
-                product_id,
-                products (
-                  id,
-                  name
-                )
-              `)
-              .eq("order_id", order.id);
-            
-            if (itemsError) throw itemsError;
-            
-            // Format order items with safer type checking
-            const items = orderItems.map((item) => {
-              // Safely extract product name from the nested products object
-              let productName = "Unknown Product";
-              if (item.products) {
-                if (typeof item.products === 'object' && item.products !== null) {
-                  // Check if the object has a name property
-                  productName = (item.products as any).name || "Unknown Product";
-                }
-              }
-              
-              return {
-                product_id: item.product_id,
-                name: productName,
-                price: item.price,
-                quantity: item.quantity
-              };
-            });
-            
-            return {
-              id: order.id,
-              date: order.created_at,
-              status: order.status,
-              total: order.total,
-              items
-            };
-          })
-        );
-        
-        setOrders(ordersWithItems);
-      } catch (err) {
-        console.error("Error fetching orders:", err);
-        toast.error("Failed to load orders");
-        
-        // Fallback to sample data in development
+        // In development mode, load sample data
         if (import.meta.env.DEV) {
           import('@/data/products').then(module => {
             // Convert sample data to match our Order interface
-            const formattedOrders = module.ORDERS.map((order: any) => ({
+            const formattedOrders = module.ORDERS ? module.ORDERS.map((order: any) => ({
               ...order,
               items: order.items.map((item: any) => ({
                 product_id: item.id || item.product_id || "", // Handle both formats
@@ -110,11 +51,17 @@ export const useOrders = () => {
                 price: item.price || 0,
                 quantity: item.quantity || 1
               }))
-            }));
+            })) : [];
             setOrders(formattedOrders);
-            toast.error("Using sample data - Supabase fetch failed");
           });
+        } else {
+          // This would be the real implementation when Supabase tables are created
+          setOrders([]);
         }
+      } catch (err) {
+        console.error("Error fetching orders:", err);
+        toast.error("Failed to load orders");
+        setOrders([]);
       } finally {
         setLoading(false);
       }
@@ -136,39 +83,23 @@ export const useOrders = () => {
         return null;
       }
       
-      // Insert order
-      const { data: order, error: orderError } = await supabase
-        .from("orders")
-        .insert({
-          user_id: user.id,
+      // In development mode, return a mock order
+      if (import.meta.env.DEV) {
+        await clearCart();
+        
+        toast.success("Order created successfully (Development Mode)");
+        
+        return {
+          id: `order-${Date.now()}`,
           status: "pending",
           total,
-          shipping_details: shippingDetails,
-          payment_method: paymentMethod
-        })
-        .select()
-        .single();
+          created_at: new Date().toISOString()
+        };
+      }
       
-      if (orderError) throw orderError;
-      
-      // Insert order items
-      const orderItems = cartItems.map(item => ({
-        order_id: order.id,
-        product_id: item.product.id,
-        quantity: item.quantity,
-        price: item.product.price
-      }));
-      
-      const { error: itemsError } = await supabase
-        .from("order_items")
-        .insert(orderItems);
-      
-      if (itemsError) throw itemsError;
-      
-      // Clear the cart after successful order
-      await clearCart();
-      
-      return order;
+      // This would be the real implementation when Supabase tables are created
+      toast.error("Orders functionality not yet implemented in production");
+      return null;
     } catch (err) {
       console.error("Error creating order:", err);
       toast.error("Failed to create order");

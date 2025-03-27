@@ -71,6 +71,11 @@ const Navbar = () => {
     { name: "Order History", path: "/orders", icon: <ListOrdered className="h-4 w-4 mr-2" /> },
   ];
 
+  // Helper function to safely render icons
+  const renderIcon = (link: any) => {
+    return 'icon' in link ? link.icon : null;
+  };
+
   return (
     <header className={cn(
       "fixed top-0 left-0 right-0 z-50 transition-all duration-300 backdrop-blur-md px-6 sm:px-10 py-4",
@@ -204,7 +209,7 @@ const Navbar = () => {
                     )}
                     onClick={() => setIsMenuOpen(false)}
                   >
-                    {link.icon && link.icon}
+                    {renderIcon(link)}
                     {link.name}
                   </Link>
                 ))}
