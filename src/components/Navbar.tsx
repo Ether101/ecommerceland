@@ -77,11 +77,6 @@ const Navbar = () => {
               <User className="h-5 w-5" />
             </Button>
           </Link>
-          <Link to="/add-product">
-            <Button variant="outline" className="ml-2">
-              Add Watch
-            </Button>
-          </Link>
           <Link to="/orders">
             <Button variant="default" className="ml-2">
               My Orders
@@ -121,11 +116,6 @@ const Navbar = () => {
                 ))}
               </nav>
               <div className="flex flex-col space-y-4 items-center">
-                <Link to="/add-product">
-                  <Button variant="outline" className="w-40">
-                    Add Watch
-                  </Button>
-                </Link>
                 <Link to="/orders">
                   <Button variant="default" className="w-40">
                     My Orders
