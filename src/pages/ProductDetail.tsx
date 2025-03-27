@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { SAMPLE_PRODUCTS } from "@/data/products";
 import { Product } from "@/components/ProductCard";
-import { ChevronLeft, Minus, Plus } from "lucide-react";
+import { ChevronLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 
 const ProductDetail = () => {
@@ -34,7 +34,32 @@ const ProductDetail = () => {
   
   const handleAddToCart = () => {
     if (!product) return;
-    toast.success(`Added ${quantity} ${product.name} to cart`);
+    
+    // Get current cart from localStorage
+    const cartItems = localStorage.getItem('cart') 
+      ? JSON.parse(localStorage.getItem('cart') || '[]') 
+      : [];
+    
+    // Check if product is already in cart
+    const existingItemIndex = cartItems.findIndex(
+      (item: { product: Product; quantity: number }) => item.product.id === product.id
+    );
+    
+    if (existingItemIndex >= 0) {
+      // Update quantity if product is already in cart
+      cartItems[existingItemIndex].quantity += quantity;
+      toast.success(`Increased ${product.name} quantity in cart`);
+    } else {
+      // Add new product to cart
+      cartItems.push({
+        product,
+        quantity
+      });
+      toast.success(`Added ${quantity} ${product.name} to cart`);
+    }
+    
+    // Save updated cart to localStorage
+    localStorage.setItem('cart', JSON.stringify(cartItems));
   };
   
   const increaseQuantity = () => setQuantity(prev => prev + 1);
@@ -129,6 +154,7 @@ const ProductDetail = () => {
                 className="w-full sm:w-auto px-12"
                 onClick={handleAddToCart}
               >
+                <ShoppingCart className="mr-2 h-4 w-4" />
                 Add to Cart
               </Button>
             </div>

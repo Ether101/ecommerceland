@@ -2,7 +2,8 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { Heart } from "lucide-react";
+import { Heart, ShoppingCart } from "lucide-react";
+import { toast } from "sonner";
 
 export interface Product {
   id: string;
@@ -26,6 +27,38 @@ const ProductCard = ({
   onToggleFavorite, 
   className 
 }: ProductCardProps) => {
+  
+  const addToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Get current cart from localStorage
+    const cartItems = localStorage.getItem('cart') 
+      ? JSON.parse(localStorage.getItem('cart') || '[]') 
+      : [];
+    
+    // Check if product is already in cart
+    const existingItemIndex = cartItems.findIndex(
+      (item: { product: Product; quantity: number }) => item.product.id === product.id
+    );
+    
+    if (existingItemIndex >= 0) {
+      // Update quantity if product is already in cart
+      cartItems[existingItemIndex].quantity += 1;
+      toast.success(`Increased ${product.name} quantity in cart`);
+    } else {
+      // Add new product to cart
+      cartItems.push({
+        product,
+        quantity: 1
+      });
+      toast.success(`Added ${product.name} to cart`);
+    }
+    
+    // Save updated cart to localStorage
+    localStorage.setItem('cart', JSON.stringify(cartItems));
+  };
+  
   return (
     <div 
       className={cn(
@@ -68,7 +101,13 @@ const ProductCard = ({
       )}
       
       <div className="absolute bottom-0 left-0 right-0 translate-y-full opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-300 p-4 bg-gradient-to-t from-white via-white">
-        <Button className="w-full">Add to Cart</Button>
+        <Button 
+          className="w-full"
+          onClick={addToCart}
+        >
+          <ShoppingCart className="mr-2 h-4 w-4" />
+          Add to Cart
+        </Button>
       </div>
     </div>
   );
