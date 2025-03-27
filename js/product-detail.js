@@ -1,4 +1,3 @@
-
 // Product Detail Page
 document.addEventListener('DOMContentLoaded', function() {
   // DOM Elements
@@ -109,7 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
   function renderProductDetail() {
     if (!product) return;
     
-    document.title = `${product.name} - Minimalist Store`;
+    document.title = `${product.name} - Chrono`;
     
     const detailHTML = `
       <div class="product-detail-grid">
