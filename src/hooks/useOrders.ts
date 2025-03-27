@@ -64,13 +64,24 @@ export const useOrders = () => {
             
             if (itemsError) throw itemsError;
             
-            // Format order items
-            const items = orderItems.map((item) => ({
-              product_id: item.product_id,
-              name: item.products && typeof item.products === 'object' ? item.products.name : "Unknown Product",
-              price: item.price,
-              quantity: item.quantity
-            }));
+            // Format order items with safer type checking
+            const items = orderItems.map((item) => {
+              // Safely extract product name from the nested products object
+              let productName = "Unknown Product";
+              if (item.products) {
+                if (typeof item.products === 'object' && item.products !== null) {
+                  // Check if the object has a name property
+                  productName = (item.products as any).name || "Unknown Product";
+                }
+              }
+              
+              return {
+                product_id: item.product_id,
+                name: productName,
+                price: item.price,
+                quantity: item.quantity
+              };
+            });
             
             return {
               id: order.id,
@@ -91,13 +102,13 @@ export const useOrders = () => {
         if (import.meta.env.DEV) {
           import('@/data/products').then(module => {
             // Convert sample data to match our Order interface
-            const formattedOrders = module.ORDERS.map(order => ({
+            const formattedOrders = module.ORDERS.map((order: any) => ({
               ...order,
               items: order.items.map((item: any) => ({
                 product_id: item.id || item.product_id || "", // Handle both formats
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity
+                name: item.name || "Unknown Item",
+                price: item.price || 0,
+                quantity: item.quantity || 1
               }))
             }));
             setOrders(formattedOrders);
