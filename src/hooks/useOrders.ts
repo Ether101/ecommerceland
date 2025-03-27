@@ -54,6 +54,7 @@ export const useOrders = () => {
                 id,
                 quantity,
                 price,
+                product_id,
                 products (
                   id,
                   name
@@ -65,7 +66,7 @@ export const useOrders = () => {
             
             // Format order items
             const items = orderItems.map((item) => ({
-              product_id: item.products.id,
+              product_id: item.product_id, // Use product_id directly from the item
               name: item.products.name,
               price: item.price,
               quantity: item.quantity
