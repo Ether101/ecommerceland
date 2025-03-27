@@ -16,6 +16,7 @@ import {
   SelectValue
 } from "@/components/ui/select";
 import { CATEGORIES } from "@/data/products";
+import { supabase } from "@/integrations/supabase/client";
 
 const AddProduct = () => {
   const navigate = useNavigate();
@@ -39,7 +40,7 @@ const AddProduct = () => {
     setFormData(prev => ({ ...prev, category: value }));
   };
   
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate form
@@ -70,17 +71,40 @@ const AddProduct = () => {
     
     setIsSubmitting(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      // In a real app, you'd send this to your API
-      console.log("Form submitted:", formData);
+    try {
+      // Insert the product into Supabase
+      const { data, error } = await supabase
+        .from('products')
+        .insert({
+          name: formData.name,
+          price: Number(formData.price),
+          category: formData.category,
+          description: formData.description,
+          image: formData.image
+        })
+        .select();
+      
+      if (error) {
+        throw error;
+      }
+      
       toast.success("Product added successfully");
       
       // Navigate back to products page
       navigate("/products");
+    } catch (error) {
+      console.error("Error adding product:", error);
+      toast.error("Failed to add product");
       
+      // For development: Add a mock product to sample data
+      if (import.meta.env.DEV) {
+        console.log("DEV mode: Product would be added:", formData);
+        toast.success("Development: Product simulated successfully");
+        navigate("/products");
+      }
+    } finally {
       setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   return (

@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, ShoppingCart, Menu, X, User, Watch } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, User, Watch, Plus, ListOrdered } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
@@ -61,6 +62,13 @@ const Navbar = () => {
     { name: "Home", path: "/" },
     { name: "Watches", path: "/products" },
     { name: "About", path: "/about" },
+  ];
+
+  // Mobile menu links with additional admin features
+  const mobileMenuLinks = [
+    ...navLinks,
+    { name: "Add Product", path: "/add-product", icon: <Plus className="h-4 w-4 mr-2" /> },
+    { name: "Order History", path: "/orders", icon: <ListOrdered className="h-4 w-4 mr-2" /> },
   ];
 
   return (
@@ -124,11 +132,20 @@ const Navbar = () => {
             </Link>
           )}
           {user ? (
-            <Link to="/orders">
-              <Button variant="default" className="ml-2">
-                My Orders
-              </Button>
-            </Link>
+            <div className="flex space-x-2">
+              <Link to="/orders">
+                <Button variant="ghost" size="sm" className="flex items-center">
+                  <ListOrdered className="h-4 w-4 mr-2" />
+                  <span>Orders</span>
+                </Button>
+              </Link>
+              <Link to="/add-product">
+                <Button variant="default" className="flex items-center">
+                  <Plus className="h-4 w-4 mr-2" />
+                  <span>Add Product</span>
+                </Button>
+              </Link>
+            </div>
           ) : (
             <Link to="/register">
               <Button variant="default" className="ml-2">
@@ -171,6 +188,60 @@ const Navbar = () => {
             </Button>
           </Link>
         </div>
+
+        {/* Mobile menu overlay */}
+        {isMenuOpen && (
+          <div className="fixed inset-0 bg-white z-0 pt-20">
+            <div className="container px-6 py-8">
+              <nav className="flex flex-col space-y-4">
+                {mobileMenuLinks.map((link) => (
+                  <Link
+                    key={link.path}
+                    to={link.path}
+                    className={cn(
+                      "flex items-center py-2 text-lg font-medium border-b border-gray-100",
+                      location.pathname === link.path ? "text-primary" : "text-gray-800"
+                    )}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {link.icon && link.icon}
+                    {link.name}
+                  </Link>
+                ))}
+                
+                {user ? (
+                  <>
+                    <Link
+                      to="/profile"
+                      className="flex items-center py-2 text-lg font-medium border-b border-gray-100"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      My Profile
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      to="/login"
+                      className="flex items-center py-2 text-lg font-medium border-b border-gray-100"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      to="/register"
+                      className="flex items-center py-2 text-lg font-medium"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      Register
+                    </Link>
+                  </>
+                )}
+              </nav>
+            </div>
+          </div>
+        )}
 
         <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       </div>
