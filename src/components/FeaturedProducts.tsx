@@ -18,7 +18,7 @@ const FeaturedProducts = () => {
     <section className="py-20 px-6 sm:px-10">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-12">
-          <h2 className="text-3xl font-heading font-medium">Featured Products</h2>
+          <h2 className="text-3xl font-heading font-medium">Featured Timepieces</h2>
           <Link to="/products">
             <Button variant="outline">View All</Button>
           </Link>

@@ -7,7 +7,7 @@ import ProductCard, { Product } from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SAMPLE_PRODUCTS, CATEGORIES } from "@/data/products";
-import { Search } from "lucide-react";
+import { Search, Watch } from "lucide-react";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -65,11 +65,14 @@ const Products = () => {
       <main className="flex-1 pt-24 px-6 sm:px-10">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col items-start mb-12">
-            <h1 className="text-4xl font-heading font-medium mb-6">
-              {categoryParam 
-                ? `${categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1)}` 
-                : "All Products"}
-            </h1>
+            <div className="flex items-center mb-6">
+              <Watch className="h-8 w-8 mr-3" />
+              <h1 className="text-4xl font-heading font-medium">
+                {categoryParam 
+                  ? `${categoryParam.charAt(0).toUpperCase() + categoryParam.slice(1)} Watches` 
+                  : "All Watches"}
+              </h1>
+            </div>
             
             <div className="w-full flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="flex flex-wrap gap-2">
@@ -95,7 +98,7 @@ const Products = () => {
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-500" />
                   <Input
                     type="search"
-                    placeholder="Search products..."
+                    placeholder="Search watches..."
                     className="pl-10"
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
@@ -117,7 +120,7 @@ const Products = () => {
             </div>
           ) : (
             <div className="py-20 text-center">
-              <h3 className="text-2xl font-medium mb-4">No products found</h3>
+              <h3 className="text-2xl font-medium mb-4">No watches found</h3>
               <p className="text-gray-600 mb-8">Try adjusting your search or filter criteria</p>
               <Button onClick={clearFilters}>Clear All Filters</Button>
             </div>

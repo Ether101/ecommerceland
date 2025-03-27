@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Search, ShoppingCart, Menu, X, User } from "lucide-react";
+import { Search, ShoppingCart, Menu, X, User, Watch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -27,7 +27,7 @@ const Navbar = () => {
 
   const navLinks = [
     { name: "Home", path: "/" },
-    { name: "Products", path: "/products" },
+    { name: "Watches", path: "/products" },
     { name: "About", path: "/about" },
     { name: "Contact", path: "/contact" },
   ];
@@ -39,9 +39,10 @@ const Navbar = () => {
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Logo */}
-        <Link to="/" className="relative z-10">
+        <Link to="/" className="relative z-10 flex items-center">
+          <Watch className="h-6 w-6 mr-2" />
           <h1 className="text-xl font-heading font-semibold tracking-tight">
-            Minimalist
+            Chrono
           </h1>
         </Link>
 
@@ -78,7 +79,7 @@ const Navbar = () => {
           </Link>
           <Link to="/add-product">
             <Button variant="outline" className="ml-2">
-              Add Product
+              Add Watch
             </Button>
           </Link>
           <Link to="/orders">
@@ -122,7 +123,7 @@ const Navbar = () => {
               <div className="flex flex-col space-y-4 items-center">
                 <Link to="/add-product">
                   <Button variant="outline" className="w-40">
-                    Add Product
+                    Add Watch
                   </Button>
                 </Link>
                 <Link to="/orders">
