@@ -1,52 +1,28 @@
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import ProductCard, { Product } from "@/components/ProductCard";
+import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SAMPLE_PRODUCTS, CATEGORIES } from "@/data/products";
+import { CATEGORIES } from "@/data/products";
 import { Search, Watch } from "lucide-react";
+import { useProducts } from "@/hooks/useProducts";
 
 const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   
   // Get category from URL params
   const categoryParam = searchParams.get("category");
   
-  useEffect(() => {
-    // In a real app, you'd fetch from an API
-    setProducts(SAMPLE_PRODUCTS);
-  }, []);
-  
-  useEffect(() => {
-    let result = [...products];
-    
-    // Filter by category if specified
-    if (categoryParam) {
-      result = result.filter(product => 
-        product.category.toLowerCase() === categoryParam.toLowerCase()
-      );
-    }
-    
-    // Filter by search query
-    if (searchQuery.trim()) {
-      result = result.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        product.description.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-    
-    setFilteredProducts(result);
-  }, [products, categoryParam, searchQuery]);
+  // Use the useProducts hook to fetch and filter products
+  const { products: filteredProducts, loading } = useProducts(categoryParam, searchQuery);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // The filtering happens in the useEffect
+    // The filtering happens in the useProducts hook
   };
   
   const handleCategoryClick = (category: string) => {
@@ -108,7 +84,11 @@ const Products = () => {
             </div>
           </div>
           
-          {filteredProducts.length > 0 ? (
+          {loading ? (
+            <div className="py-20 text-center">
+              <h3 className="text-xl font-medium mb-4">Loading watches...</h3>
+            </div>
+          ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 sm:gap-8 mb-16">
               {filteredProducts.map((product, index) => (
                 <ProductCard 
