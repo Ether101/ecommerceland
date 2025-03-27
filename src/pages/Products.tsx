@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -14,19 +14,40 @@ const Products = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [searchQuery, setSearchQuery] = useState("");
   
-  // Get category from URL params
+  // Get category and search from URL params
   const categoryParam = searchParams.get("category");
+  const searchParam = searchParams.get("search");
+  
+  // Set initial search query from URL if present
+  useEffect(() => {
+    if (searchParam) {
+      setSearchQuery(searchParam);
+    }
+  }, [searchParam]);
   
   // Use the useProducts hook to fetch and filter products
   const { products: filteredProducts, loading } = useProducts(categoryParam, searchQuery);
   
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // The filtering happens in the useProducts hook
+    // Update URL with search parameter
+    const newParams = new URLSearchParams(searchParams);
+    if (searchQuery) {
+      newParams.set("search", searchQuery);
+    } else {
+      newParams.delete("search");
+    }
+    setSearchParams(newParams);
   };
   
   const handleCategoryClick = (category: string) => {
-    setSearchParams({ category });
+    const newParams = new URLSearchParams();
+    newParams.set("category", category);
+    // Preserve search if exists
+    if (searchQuery) {
+      newParams.set("search", searchQuery);
+    }
+    setSearchParams(newParams);
   };
   
   const clearFilters = () => {

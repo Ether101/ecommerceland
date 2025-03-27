@@ -1,19 +1,19 @@
-
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Search, ShoppingCart, Menu, X, User, Watch } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import SearchDialog from "@/components/SearchDialog";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const location = useLocation();
   const { user } = useAuth();
 
-  // Track scrolling for navbar style change
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 10);
@@ -23,7 +23,6 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Update cart count when cart changes
   useEffect(() => {
     const updateCartCount = () => {
       const cartItems = localStorage.getItem('cart') 
@@ -38,21 +37,15 @@ const Navbar = () => {
       setCartItemsCount(count);
     };
     
-    // Initial count
     updateCartCount();
     
-    // Listen for storage events (when cart is updated)
     window.addEventListener('storage', updateCartCount);
     
-    // Custom event for when we update the cart from this tab
     const handleCartUpdate = () => {
       updateCartCount();
     };
     
     window.addEventListener('cartUpdated', handleCartUpdate);
-    
-    // Update cart count when location changes
-    updateCartCount();
     
     return () => {
       window.removeEventListener('storage', updateCartCount);
@@ -60,7 +53,6 @@ const Navbar = () => {
     };
   }, [location.pathname]);
 
-  // Close menu when route changes
   useEffect(() => {
     setIsMenuOpen(false);
   }, [location.pathname]);
@@ -77,7 +69,6 @@ const Navbar = () => {
       isScrolled ? "bg-white/80 shadow-sm" : "bg-transparent"
     )}>
       <div className="max-w-7xl mx-auto flex items-center justify-between">
-        {/* Logo */}
         <Link to="/" className="relative z-10 flex items-center">
           <Watch className="h-6 w-6 mr-2" />
           <h1 className="text-xl font-heading font-semibold tracking-tight">
@@ -85,7 +76,6 @@ const Navbar = () => {
           </h1>
         </Link>
 
-        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           {navLinks.map((link) => (
             <Link
@@ -101,9 +91,13 @@ const Navbar = () => {
           ))}
         </nav>
 
-        {/* Navigation Actions */}
         <div className="hidden md:flex items-center space-x-4">
-          <Button variant="ghost" size="icon" aria-label="Search">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            aria-label="Search"
+            onClick={() => setIsSearchOpen(true)}
+          >
             <Search className="h-5 w-5" />
           </Button>
           <Link to="/cart">
@@ -144,7 +138,6 @@ const Navbar = () => {
           )}
         </div>
 
-        {/* Mobile Menu Button */}
         <button
           className="md:hidden relative z-10"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -157,91 +150,29 @@ const Navbar = () => {
           )}
         </button>
 
-        {/* Mobile Cart Icon */}
-        <Link to="/cart" className="md:hidden relative z-10">
-          <Button variant="ghost" size="icon" aria-label="Cart">
-            <ShoppingCart className="h-5 w-5" />
-            {cartItemsCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
-                {cartItemsCount}
-              </span>
-            )}
+        <div className="md:hidden flex items-center space-x-2 relative z-10">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            aria-label="Search" 
+            onClick={() => setIsSearchOpen(true)}
+          >
+            <Search className="h-5 w-5" />
           </Button>
-        </Link>
+          
+          <Link to="/cart">
+            <Button variant="ghost" size="icon" aria-label="Cart">
+              <ShoppingCart className="h-5 w-5" />
+              {cartItemsCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                  {cartItemsCount}
+                </span>
+              )}
+            </Button>
+          </Link>
+        </div>
 
-        {/* Mobile Menu */}
-        {isMenuOpen && (
-          <div className="fixed inset-0 bg-white z-0 md:hidden">
-            <div className="flex flex-col items-center justify-center h-full">
-              <nav className="flex flex-col items-center space-y-8 mb-8">
-                {navLinks.map((link) => (
-                  <Link
-                    key={link.path}
-                    to={link.path}
-                    className={cn(
-                      "text-lg font-medium transition-colors hover:text-black",
-                      location.pathname === link.path ? "text-black" : "text-black/60"
-                    )}
-                  >
-                    {link.name}
-                  </Link>
-                ))}
-                <Link 
-                  to="/cart"
-                  className={cn(
-                    "text-lg font-medium transition-colors hover:text-black",
-                    location.pathname === "/cart" ? "text-black" : "text-black/60"
-                  )}
-                >
-                  Cart
-                </Link>
-                {user ? (
-                  <>
-                    <Link 
-                      to="/profile"
-                      className={cn(
-                        "text-lg font-medium transition-colors hover:text-black",
-                        location.pathname === "/profile" ? "text-black" : "text-black/60"
-                      )}
-                    >
-                      Profile
-                    </Link>
-                    <Link 
-                      to="/orders"
-                      className={cn(
-                        "text-lg font-medium transition-colors hover:text-black",
-                        location.pathname === "/orders" ? "text-black" : "text-black/60"
-                      )}
-                    >
-                      Orders
-                    </Link>
-                  </>
-                ) : (
-                  <>
-                    <Link 
-                      to="/login"
-                      className={cn(
-                        "text-lg font-medium transition-colors hover:text-black",
-                        location.pathname === "/login" ? "text-black" : "text-black/60"
-                      )}
-                    >
-                      Login
-                    </Link>
-                    <Link 
-                      to="/register"
-                      className={cn(
-                        "text-lg font-medium transition-colors hover:text-black",
-                        location.pathname === "/register" ? "text-black" : "text-black/60"
-                      )}
-                    >
-                      Register
-                    </Link>
-                  </>
-                )}
-              </nav>
-            </div>
-          </div>
-        )}
+        <SearchDialog open={isSearchOpen} onOpenChange={setIsSearchOpen} />
       </div>
     </header>
   );

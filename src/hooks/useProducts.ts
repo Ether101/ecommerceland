@@ -4,7 +4,7 @@ import { supabase, ProductTable } from "@/lib/supabase";
 import { toast } from "sonner";
 import { Product } from "@/components/ProductCard";
 
-export const useProducts = (categoryFilter?: string, searchQuery?: string) => {
+export const useProducts = (categoryFilter?: string | null, searchQuery?: string | null) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -19,6 +19,12 @@ export const useProducts = (categoryFilter?: string, searchQuery?: string) => {
         // Apply category filter if provided
         if (categoryFilter) {
           query = query.eq("category", categoryFilter);
+        }
+        
+        // Apply server-side search if provided
+        if (searchQuery && searchQuery.trim()) {
+          const searchTerm = searchQuery.toLowerCase().trim();
+          query = query.or(`name.ilike.%${searchTerm}%,description.ilike.%${searchTerm}%`);
         }
         
         // Execute the query
@@ -36,25 +42,33 @@ export const useProducts = (categoryFilter?: string, searchQuery?: string) => {
           description: item.description,
         }));
         
-        // Apply search filter in memory (if needed)
-        let filteredProducts = formattedProducts;
-        if (searchQuery && searchQuery.trim()) {
-          const query = searchQuery.toLowerCase();
-          filteredProducts = formattedProducts.filter(
-            product => 
-              product.name.toLowerCase().includes(query) || 
-              product.description.toLowerCase().includes(query)
-          );
-        }
-        
-        setProducts(filteredProducts);
+        setProducts(formattedProducts);
       } catch (err) {
         console.error("Error fetching products:", err);
         setError(err instanceof Error ? err : new Error("Failed to fetch products"));
         // Fallback to sample data if in development
         if (import.meta.env.DEV) {
           import('@/data/products').then(module => {
-            setProducts(module.SAMPLE_PRODUCTS);
+            let result = [...module.SAMPLE_PRODUCTS];
+            
+            // Apply category filter
+            if (categoryFilter) {
+              result = result.filter(product => 
+                product.category.toLowerCase() === categoryFilter.toLowerCase()
+              );
+            }
+            
+            // Apply search filter
+            if (searchQuery && searchQuery.trim()) {
+              const query = searchQuery.toLowerCase();
+              result = result.filter(
+                product => 
+                  product.name.toLowerCase().includes(query) || 
+                  product.description.toLowerCase().includes(query)
+              );
+            }
+            
+            setProducts(result);
             toast.error("Using sample data - Supabase fetch failed");
           });
         }
