@@ -8,6 +8,7 @@ import { SAMPLE_PRODUCTS } from "@/data/products";
 import { Product } from "@/components/ProductCard";
 import { ChevronLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const ProductDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -16,14 +17,46 @@ const ProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   
   useEffect(() => {
-    // In a real app, you'd fetch from an API
-    const fetchProduct = () => {
+    const fetchProduct = async () => {
       setLoading(true);
       try {
+        // First try to fetch from Supabase
+        if (id) {
+          const { data, error } = await supabase
+            .from("products")
+            .select("*")
+            .eq("id", id)
+            .single();
+          
+          if (error) {
+            console.error("Supabase error:", error);
+            throw error;
+          }
+          
+          if (data) {
+            setProduct({
+              id: data.id,
+              name: data.name,
+              price: data.price,
+              category: data.category,
+              image: data.image,
+              description: data.description,
+            });
+            return;
+          }
+        }
+        
+        // Fallback to sample data if Supabase fetch fails or in development
         const foundProduct = SAMPLE_PRODUCTS.find(p => p.id === id);
         setProduct(foundProduct || null);
+        
       } catch (error) {
         console.error("Error fetching product:", error);
+        
+        // Fallback to sample data
+        const foundProduct = SAMPLE_PRODUCTS.find(p => p.id === id);
+        setProduct(foundProduct || null);
+        
       } finally {
         setLoading(false);
       }

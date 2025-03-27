@@ -16,7 +16,7 @@ import {
   CommandList
 } from "@/components/ui/command";
 import { Search, Loader2 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { Product } from "@/components/ProductCard";
 
 interface SearchDialogProps {

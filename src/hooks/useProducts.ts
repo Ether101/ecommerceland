@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { supabase, ProductTable } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Product } from "@/components/ProductCard";
 
@@ -33,7 +33,7 @@ export const useProducts = (categoryFilter?: string | null, searchQuery?: string
         if (error) throw error;
         
         // Transform Supabase data to match our Product type
-        const formattedProducts = data.map((item: ProductTable) => ({
+        const formattedProducts = data.map((item) => ({
           id: item.id,
           name: item.name,
           price: item.price,
