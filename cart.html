@@ -1,0 +1,191 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shopping Cart - Minimalist Store</title>
+    <meta name="description" content="Premium quality products with minimalist design" />
+    <meta name="author" content="Minimalist Store" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="container">
+          <a href="index.html" class="logo">Minimalist Store</a>
+          <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="products.html">Products</a>
+            <a href="about.html">About</a>
+            <a href="cart.html" class="cart-link">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg>
+              <span class="cart-count">0</span>
+            </a>
+          </div>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <div class="container">
+        <h1 class="section-title">Your Cart</h1>
+        
+        <div id="cart-content" class="cart-content">
+          <!-- Cart items will be loaded here -->
+          <div class="loading">Loading cart...</div>
+        </div>
+        
+        <div id="cart-summary" class="cart-summary hidden">
+          <div class="summary-item">
+            <span>Subtotal</span>
+            <span id="subtotal">$0.00</span>
+          </div>
+          <div class="summary-item">
+            <span>Shipping</span>
+            <span>Free</span>
+          </div>
+          <div class="summary-item total">
+            <span>Total</span>
+            <span id="total">$0.00</span>
+          </div>
+        </div>
+        
+        <!-- Shipping Form -->
+        <div id="shipping-form" class="shipping-form hidden">
+          <h2>Shipping Information</h2>
+          <form id="checkout-form">
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" required>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" required>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input type="email" id="email" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="address">Street Address</label>
+              <input type="text" id="address" required>
+            </div>
+            
+            <div class="form-grid">
+              <div class="form-group">
+                <label for="city">City</label>
+                <input type="text" id="city" required>
+              </div>
+              <div class="form-group">
+                <label for="state">State</label>
+                <input type="text" id="state" required>
+              </div>
+              <div class="form-group">
+                <label for="zipCode">Zip Code</label>
+                <input type="text" id="zipCode" required>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="country">Country</label>
+              <select id="country">
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+                <option value="UK">United Kingdom</option>
+                <option value="AU">Australia</option>
+              </select>
+            </div>
+            
+            <h3>Payment Method</h3>
+            <div class="payment-methods">
+              <div class="payment-method">
+                <input type="radio" id="paypal" name="paymentMethod" value="paypal" checked>
+                <label for="paypal">
+                  <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" alt="PayPal">
+                  PayPal
+                </label>
+              </div>
+              <div class="payment-method">
+                <input type="radio" id="credit-card" name="paymentMethod" value="credit-card">
+                <label for="credit-card">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+                  Credit Card
+                </label>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" id="back-to-cart" class="btn secondary">Back to Cart</button>
+              <button type="submit" class="btn primary">Complete Purchase</button>
+            </div>
+          </form>
+        </div>
+        
+        <!-- Payment Processing -->
+        <div id="payment-processing" class="payment-processing hidden">
+          <div class="processing-container">
+            <div id="payment-icon" class="payment-icon pulse"></div>
+            <h2 id="payment-message">Processing your payment...</h2>
+            <p>Please do not close this window</p>
+          </div>
+        </div>
+        
+        <!-- Order Confirmation -->
+        <div id="order-confirmation" class="order-confirmation hidden">
+          <div class="confirmation-container">
+            <div class="success-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            </div>
+            <h2>Order Confirmed!</h2>
+            <p>Thank you for your purchase. Your order has been successfully placed.</p>
+            <p>Order #: <span id="order-id">CHR-0000</span></p>
+            <p>A confirmation email has been sent to your email address.</p>
+            <a href="products.html" class="btn primary">Continue Shopping</a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h3>Minimalist Store</h3>
+            <p>Premium quality products with minimalist design.</p>
+          </div>
+          <div class="footer-section">
+            <h3>Quick Links</h3>
+            <ul>
+              <li><a href="index.html">Home</a></li>
+              <li><a href="products.html">Products</a></li>
+              <li><a href="about.html">About</a></li>
+            </ul>
+          </div>
+          <div class="footer-section">
+            <h3>Contact</h3>
+            <p>Email: info@minimaliststore.com</p>
+            <p>Phone: (123) 456-7890</p>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>&copy; 2023 Minimalist Store. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
+
+    <div id="toast-container"></div>
+
+    <script src="js/toast.js"></script>
+    <script src="js/cart.js"></script>
+  </body>
+</html>

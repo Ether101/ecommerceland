@@ -3,6 +3,13 @@
 class ToastManager {
   constructor() {
     this.container = document.getElementById('toast-container');
+    
+    // Create the container if it doesn't exist
+    if (!this.container) {
+      this.container = document.createElement('div');
+      this.container.id = 'toast-container';
+      document.body.appendChild(this.container);
+    }
   }
 
   createToast(message, type = 'info', duration = 3000) {

@@ -62,6 +62,11 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   function updateCartUI() {
+    if (!cartContentElement) {
+      console.error('Cart content element not found');
+      return;
+    }
+    
     if (cartItems.length === 0) {
       // Show empty cart message
       cartContentElement.innerHTML = `
@@ -71,7 +76,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <a href="products.html" class="btn primary">Browse Watches</a>
         </div>
       `;
-      cartSummaryElement.classList.add('hidden');
+      if (cartSummaryElement) {
+        cartSummaryElement.classList.add('hidden');
+      }
     } else {
       // Show cart items
       const cartItemsHTML = `
@@ -117,11 +124,17 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
       `;
       cartContentElement.innerHTML = cartItemsHTML;
-      cartSummaryElement.classList.remove('hidden');
+      if (cartSummaryElement) {
+        cartSummaryElement.classList.remove('hidden');
+      }
       
       // Update summary
-      subtotalElement.textContent = `$${calculateSubtotal().toFixed(2)}`;
-      totalElement.textContent = `$${calculateSubtotal().toFixed(2)}`;
+      if (subtotalElement) {
+        subtotalElement.textContent = `$${calculateSubtotal().toFixed(2)}`;
+      }
+      if (totalElement) {
+        totalElement.textContent = `$${calculateSubtotal().toFixed(2)}`;
+      }
       
       // Add event listeners to quantity buttons
       document.querySelectorAll('.quantity-btn.decrease').forEach(btn => {
@@ -138,7 +151,10 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       
       // Re-add event listener to checkout button
-      document.getElementById('checkout-btn').addEventListener('click', handleCheckout);
+      const newCheckoutBtn = document.getElementById('checkout-btn');
+      if (newCheckoutBtn) {
+        newCheckoutBtn.addEventListener('click', handleCheckout);
+      }
     }
   }
   
@@ -191,12 +207,16 @@ document.addEventListener('DOMContentLoaded', function() {
     toast.info('Redirecting to PayPal...');
     
     // Update payment processing UI
-    paymentIconElement.innerHTML = `
-      <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
-           alt="PayPal" 
-           style="width: 64px; height: auto;">
-    `;
-    paymentMessageElement.textContent = 'Connecting to PayPal...';
+    if (paymentIconElement) {
+      paymentIconElement.innerHTML = `
+        <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" 
+             alt="PayPal" 
+             style="width: 64px; height: auto;">
+      `;
+    }
+    if (paymentMessageElement) {
+      paymentMessageElement.textContent = 'Connecting to PayPal...';
+    }
     
     // Simulate PayPal sandbox experience
     setTimeout(() => {
@@ -209,10 +229,14 @@ document.addEventListener('DOMContentLoaded', function() {
     toast.info('Processing credit card payment...');
     
     // Update payment processing UI
-    paymentIconElement.innerHTML = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
-    `;
-    paymentMessageElement.textContent = 'Processing credit card payment...';
+    if (paymentIconElement) {
+      paymentIconElement.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/></svg>
+      `;
+    }
+    if (paymentMessageElement) {
+      paymentMessageElement.textContent = 'Processing credit card payment...';
+    }
     
     // Simulate payment processing
     setTimeout(() => {
@@ -224,7 +248,9 @@ document.addEventListener('DOMContentLoaded', function() {
     setCheckoutStage('confirmation');
     
     // Generate random order number
-    orderIdElement.textContent = 'CHR-' + Math.floor(Math.random() * 10000);
+    if (orderIdElement) {
+      orderIdElement.textContent = 'CHR-' + Math.floor(Math.random() * 10000);
+    }
     
     // Clear cart after successful purchase
     localStorage.removeItem('cart');
@@ -238,28 +264,28 @@ document.addEventListener('DOMContentLoaded', function() {
     currentStage = stage;
     
     // Hide all sections
-    cartContentElement.classList.add('hidden');
-    cartSummaryElement.classList.add('hidden');
-    shippingFormElement.classList.add('hidden');
-    paymentProcessingElement.classList.add('hidden');
-    orderConfirmationElement.classList.add('hidden');
+    if (cartContentElement) cartContentElement.classList.add('hidden');
+    if (cartSummaryElement) cartSummaryElement.classList.add('hidden');
+    if (shippingFormElement) shippingFormElement.classList.add('hidden');
+    if (paymentProcessingElement) paymentProcessingElement.classList.add('hidden');
+    if (orderConfirmationElement) orderConfirmationElement.classList.add('hidden');
     
     // Show appropriate section based on stage
     switch(stage) {
       case 'cart':
-        cartContentElement.classList.remove('hidden');
-        if (cartItems.length > 0) {
+        if (cartContentElement) cartContentElement.classList.remove('hidden');
+        if (cartItems.length > 0 && cartSummaryElement) {
           cartSummaryElement.classList.remove('hidden');
         }
         break;
       case 'shipping':
-        shippingFormElement.classList.remove('hidden');
+        if (shippingFormElement) shippingFormElement.classList.remove('hidden');
         break;
       case 'payment':
-        paymentProcessingElement.classList.remove('hidden');
+        if (paymentProcessingElement) paymentProcessingElement.classList.remove('hidden');
         break;
       case 'confirmation':
-        orderConfirmationElement.classList.remove('hidden');
+        if (orderConfirmationElement) orderConfirmationElement.classList.remove('hidden');
         break;
     }
   }
