@@ -67,7 +67,7 @@ export const useOrders = () => {
             // Format order items
             const items = orderItems.map((item) => ({
               product_id: item.product_id,
-              name: item.products ? item.products.name : "Unknown Product",
+              name: item.products && typeof item.products === 'object' ? item.products.name : "Unknown Product",
               price: item.price,
               quantity: item.quantity
             }));
@@ -93,8 +93,8 @@ export const useOrders = () => {
             // Convert sample data to match our Order interface
             const formattedOrders = module.ORDERS.map(order => ({
               ...order,
-              items: order.items.map(item => ({
-                product_id: item.id || (item as any).product_id, // Handle both formats with type assertion
+              items: order.items.map((item: any) => ({
+                product_id: item.id || item.product_id || "", // Handle both formats
                 name: item.name,
                 price: item.price,
                 quantity: item.quantity
