@@ -66,7 +66,7 @@ export const useOrders = () => {
             
             // Format order items
             const items = orderItems.map((item) => ({
-              product_id: item.product_id, // Use product_id directly from the item
+              product_id: item.product_id,
               name: item.products.name,
               price: item.price,
               quantity: item.quantity
@@ -90,7 +90,17 @@ export const useOrders = () => {
         // Fallback to sample data in development
         if (import.meta.env.DEV) {
           import('@/data/products').then(module => {
-            setOrders(module.ORDERS);
+            // Convert sample data to match our Order interface
+            const formattedOrders = module.ORDERS.map(order => ({
+              ...order,
+              items: order.items.map(item => ({
+                product_id: item.id || item.product_id, // Handle both formats
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity
+              }))
+            }));
+            setOrders(formattedOrders);
             toast.error("Using sample data - Supabase fetch failed");
           });
         }
